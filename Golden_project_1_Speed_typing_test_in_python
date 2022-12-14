@@ -6,7 +6,7 @@ import random
 window = Tk()
  
 # the size of the window is defined
-window.geometry("450x200")
+window.geometry("700x200")
  
 x = 0
  
@@ -36,8 +36,8 @@ def game():
         else:
             print("Wrong Input")
  
-    words = ['programming', 'coding', 'algorithm',
-             'systems', 'python', 'software']
+    words = ['programming is important', 'coding club', 'algorithms are base of any programming',
+             'system processor and compilers', 'python programming and data science', 'software analysis','Kashish is a good girl']
  
     # Give random words for testing the speed of user
     word = random.randint(0, (len(words)-1))
@@ -52,7 +52,7 @@ def game():
  
     # place of labeling in window
     x2.place(x=150, y=10)
-    x3 = Label(windows, text="Start Typing", font="times 20")
+    x3 = Label(windows, text="Start Typing above text", font="times 20")
     x3.place(x=10, y=50)
  
     entry = Entry(windows)
@@ -69,10 +69,10 @@ def game():
     windows.mainloop()
  
  
-x1 = Label(window, text="Lets start playing..", font="times 20")
+x1 = Label(window, text="LET US CHECK YOUR SPEED", font="times 20")
 x1.place(x=10, y=50)
  
-b1 = Button(window, text="Go", command=game, width=12, bg='grey')
+b1 = Button(window, text="Enter", command=game, width=12, bg='grey')
 b1.place(x=150, y=100)
  
 # calling window
