@@ -1,108 +1,110 @@
-
-#Musicplyaerinpython
-from pygame import mixer
+# Create a Music player
+# Importing all the necessary modules
 from tkinter import *
-import tkinter.font as font
 from tkinter import filedialog
-#creating root window 
-root=Tk()
-root.title(' Python Music player App ')
-#initialize mixer 
-mixer.init()
-#create the listbox to contain songs
-songs_list=Listbox(root,selectmode=SINGLE,bg="pink",fg="white",font=('arial',16),height=13,width=49,selectbackground="yellow",selectforeground="pink")
-songs_list.grid(columnspan=9)
-#font is defined which is to be used for the button font 
-defined_font = font.Font(family='Helvetica')
-#play button
-play_button=Button(root,text="Play",width =7,command=Play)
-play_button['font']=defined_font
-play_button.grid(row=1,column=0)
-#pause button 
-pause_button=Button(root,text="Pause",width =7,command=Pause)
-pause_button['font']=defined_font
-pause_button.grid(row=1,column=1)
-#stop button
-stop_button=Button(root,text="Stop",width =7,command=Stop)
-stop_button['font']=defined_font
-stop_button.grid(row=1,column=2)
-#resume button
-Resume_button=Button(root,text="Resume",width =7,command=Resume)
-Resume_button['font']=defined_font
-Resume_button.grid(row=1,column=3)
-#previous button
-previous_button=Button(root,text="Prev",width =7,command=Previous)
-previous_button['font']=defined_font
-previous_button.grid(row=1,column=4)
-#nextbutton
-next_button=Button(root,text="Next",width =7,command=Next)
-next_button['font']=defined_font
-next_button.grid(row=1,column=5)
-#menu 
-my_menu=Menu(root)
-root.config(menu=my_menu)
-add_song_menu=Menu(my_menu)
-my_menu.add_cascade(label="Menu",menu=add_song_menu)
-add_song_menu.add_command(label="Add songs",command=addsongs)
-add_song_menu.add_command(label="Delete song",command=deletesong)
-mainloop()
+import pygame.mixer as mixer        # pip install pygame
+import os
 
-def addsongs():
-    #to open a file  
-    temp_song=filedialog.askopenfilenames(initialdir="Music/",title="Choose a song", filetypes=(("mp3 Files","*.mp3"),))
-    ##loop through every item in the list to insert in the listbox
-for s in temp_song:
-        s=s.replace("C:/Users/DataFlair/python-mp3-music-player/","")
-songs_list.insert(END,s)
-     
-def deletesong():
-    curr_song=songs_list.curselection()
-    songs_list.delete(curr_song[0])
-    
-    
-def Play():
-    song=songs_list.get(ACTIVE)
-    song=f'C:/Users/lenovo/Desktop/DataFlair/Notepad/Music/{song}'
-    mixer.music.load(song)
+# Initializing the mixer
+mixer.init()
+
+# Play, Stop, Load and Pause & Resume functions
+def play_song(song_name: StringVar, songs_list: Listbox, status: StringVar):
+    song_name.set(songs_list.get(ACTIVE))
+
+    mixer.music.load(songs_list.get(ACTIVE))
     mixer.music.play()
-#to pause the song 
-def Pause():
-    mixer.music.pause()
-#to stop the  song 
-def Stop():
+
+    status.set("Song PLAYING")
+
+
+def stop_song(status: StringVar):
     mixer.music.stop()
-    songs_list.selection_clear(ACTIVE)
-#to resume the song
-def Resume():
+    status.set("Song STOPPED")
+
+
+def load(listbox):
+    os.chdir(filedialog.askdirectory(title='Open songs directory'))
+
+    tracks = os.listdir()
+
+    for track in tracks:
+        listbox.insert(END, track)
+
+
+def pause_song(status: StringVar):
+    mixer.music.pause()
+    status.set("Song PAUSED")
+
+
+def resume_song(status: StringVar):
     mixer.music.unpause()
-#Function to navigate from the current song
-def Previous():
-    #to get the selected song index
-    previous_one=songs_list.curselection()
-    #to get the previous song index
-    previous_one=previous_one[0]-1
-    #to get the previous song
-    temp2=songs_list.get(previous_one)
-    temp2=f'C:/Users/DataFlair/python-mp3-music-player/{temp2}'
-    mixer.music.load(temp2)
-    mixer.music.play()
-    songs_list.selection_clear(0,END)
-    #activate new song
-    songs_list.activate(previous_one)
-    #set the next song
-    songs_list.selection_set(previous_one)
-def Next():
-    #to get the selected song index
-    next_one=songs_list.curselection()
-    #to get the next song index
-    next_one=next_one[0]+1
-    #to get the next song 
-    temp=songs_list.get(next_one)
-    temp=f'C:/Users/DataFlair/python-mp3-music-player/{temp}'
-    mixer.music.load(temp)
-    mixer.music.play()
-    songs_list.selection_clear(0,END)
-    #activate newsong
-    songs_list.activate(next_one)
-     #set the next song
-    songs_list.selection_set(next_one)
+    status.set("Song RESUMED")
+
+
+# Creating the master GUI
+root = Tk()
+root.geometry('700x220')     #
+root.title('Kashish Music Player')
+root.resizable(0, 0)
+
+# All the frames
+song_frame = LabelFrame(root, text='Current Song', bg='Blue', width=400, height=80)
+song_frame.place(x=0, y=0)
+
+button_frame = LabelFrame(root, text='Control Buttons', bg='Yellow', width=400, height=120)
+button_frame.place(y=80)
+
+listbox_frame = LabelFrame(root, text='Playlist', bg='RoyalBlue')
+listbox_frame.place(x=400, y=0, height=200, width=300)
+
+# All StringVar variables
+current_song = StringVar(root, value='<Not selected>')
+
+song_status = StringVar(root, value='<Not Available>')
+
+# Playlist ListBox
+playlist = Listbox(listbox_frame, font=('Times new roman', 11), selectbackground='green')
+
+scroll_bar = Scrollbar(listbox_frame, orient=VERTICAL)
+scroll_bar.pack(side=RIGHT, fill=BOTH)
+
+playlist.config(yscrollcommand=scroll_bar.set)
+
+scroll_bar.config(command=playlist.yview)
+
+playlist.pack(fill=BOTH, padx=5, pady=5)
+
+# SongFrame Labels
+Label(song_frame, text='CURRENTLY PLAYING:', bg='LightBlue', font=('Times', 10, 'bold')).place(x=5, y=20)
+
+song_lbl = Label(song_frame, textvariable=current_song, bg='white', font=("Times", 12), width=25)
+song_lbl.place(x=150, y=20)
+
+# Buttons in the main screen
+pause_btn = Button(button_frame, text='Pause', bg='red', font=("Georgia", 13), width=7,
+                    command=lambda: pause_song(song_status))
+pause_btn.place(x=15, y=10)
+
+stop_btn = Button(button_frame, text='Stop', bg='light yellow', font=("Georgia", 13), width=7,
+                  command=lambda: stop_song(song_status))
+stop_btn.place(x=105, y=10)
+
+play_btn = Button(button_frame, text='Play', bg='light green', font=("Georgia", 13), width=7,
+                  command=lambda: play_song(current_song, playlist, song_status))
+play_btn.place(x=195, y=10)
+
+resume_btn = Button(button_frame, text='Resume', bg='Aqua', font=("Georgia", 13), width=7,
+                    command=lambda: resume_song(song_status))
+resume_btn.place(x=285, y=10)
+
+load_btn = Button(button_frame, text='Load Directory', bg='pink', font=("Georgia", 13), width=35,
+                  command=lambda: load(playlist))
+load_btn.place(x=10, y=55)
+
+# Label at the bottom that displays the state of the music
+Label(root, textvariable=song_status, bg='light green', font=('Times', 9), justify=LEFT).pack(side=BOTTOM, fill=X)
+
+# Finalizing the GUI
+root.update()
+root.mainloop()
